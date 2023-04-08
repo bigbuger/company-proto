@@ -1,0 +1,18 @@
+* Description
+
+companybackend for protobuf.
+
+* Require
+
+[[https://github.com/company-mode/company-mode][Company Mode]]
+
+[[https://github.com/protocolbuffers/protobuf/blob/main/editors/protobuf-mode.el][Protobuf Mode]]
+
+* Usage
+You need to add following config to your init file:
+
+#+BEGIN_SRC elisp
+(add-hook 'protobuf-mode-hook
+          (lambda () (setq-local company-backends
+				 (cl-adjoin '(company-proto) company-backends))))
+#+END_SRC

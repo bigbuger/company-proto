@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package test;
+
+message Person {
+  string id = 1;
+  string name = 2;
+  optional uint32 age = 3;
+  repeated string childs = 4;
+}
+
+enum Status {
+  OK = 0;
+  ERROR = 2;
+}
+
+
+message GetPersonRequest {
+  string id = 1;
+  map<string, string> ext = 2;
+}
+
+service UserService {
+  rpc GetUser(GetPersonRequest) returns(Person);
+}
+
+message PersonResponse {
+  
+}
+
+message Test {
+}
+
