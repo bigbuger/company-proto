@@ -16,7 +16,8 @@ enum Status {
 
 
 message GetPersonRequest {
-  string id = 1;
+  option deprecated = true;
+  string id = 1 [deprecated = true];
   map<string, string> ext = 2;
 }
 
@@ -29,5 +30,6 @@ message PersonResponse {
 }
 
 message Test {
+  
 }
 
