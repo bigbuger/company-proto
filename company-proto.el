@@ -69,7 +69,7 @@
   '("rpc"))
 
 (defconst company-proto-returns
-  '("resturns"))
+  '("returns"))
 
 (defconst company-proto-file-options
   '("java_package"
@@ -137,10 +137,13 @@
 
 (defun company-proto--current-token-type (prefix)
   "Prase the token type in current position."
-  (let* ((k (when (save-excursion (re-search-backward (rx (or "{" "}" "(" "<" ">" "[")) nil t 1))
+  (let* ((k (when (save-excursion (re-search-backward (rx (or ";" "{" "}" "(" ")" "<" ">" "[")) nil t 1))
 	      (match-string 0)))
-	 (scope (when (save-excursion (and (string-equal k "{")
-					  (re-search-backward (rx word-start (or "message" "enum" "service") word-end) nil t 1)))
+	 (scope (when (save-excursion
+			(and (or (string-equal k ";")
+				 (string-equal k "{")
+				 (string-equal k ")"))
+			     (re-search-backward (rx word-start (or "message" "enum" "service") word-end) nil t 1)))
 		  (match-string 0)))
 	 (option? (looking-back (rx-to-string `(: bow "option" eow (* whitespace) ,prefix)) 1)))
     (cond
@@ -150,7 +153,8 @@
      ((string-equal k "[") (when (looking-back (rx-to-string `(: (or "[" ",") (* whitespace) ,prefix)) 1) 'proto-field-option))
      ((string-equal scope "service") (if option? 'proto-service-option 'proto-api-define))
      ((string-equal scope "message") (if option? 'proto-message-option 'proto-field-rule-or-type))
-     ((string-equal scope "enum") (when option? 'proto-enum-option)))))
+     ((string-equal scope "enum") (when option? 'proto-enum-option))
+     (t 'proto-top-level))))
 
 (defun company-proto--first-symbol? (prefix)
   "Retrun non-nil if PREFIX is the first word of line."
@@ -174,7 +178,7 @@
   (let ((token-type (company-proto--current-token-type prefix)))
     (cl-remove-if-not
      (lambda (c) (string-prefix-p prefix c))
-     (cl-case token-type
+     (pcase token-type
        ('proto-return company-proto-returns)
        ('proto-type (company-proto--types))
        ('proto-top-level (when (company-proto--first-symbol? prefix) (append company-proto-option company-proto-top-level-keyword nil)))
